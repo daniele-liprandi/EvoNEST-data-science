@@ -73,16 +73,19 @@ install.packages(c('httr', 'jsonlite', 'dplyr', 'ggplot2', 'tidyr', 'knitr'))
 If you already have R installed on your system and want to use it instead of installing through the setup script:
 
 1. **Copy the R scripts folder** to your preferred working directory:
+
    ```bash
    cp -r src/R /path/to/your/workspace/
    ```
 
 2. **Copy the configuration folder**:
+
    ```bash
    cp -r config /path/to/your/workspace/
    ```
 
 3. **Install required R packages**:
+
    ```r
    install.packages(c('httr', 'jsonlite', 'dplyr', 'ggplot2', 'tidyr', 'knitr'))
    ```
@@ -136,6 +139,7 @@ Execute `analyse_outliers.py` or `analyse_outliers.R` to perform hierarchical ou
   - `processed_data/outlier_experiments.csv`: Summary of flagged experiments
 
 ## Interactive Notebooks
+
 Interactive notebooks guide users through the pipeline with step-by-step instructions:
 
 ### Python: Jupyter Notebook
