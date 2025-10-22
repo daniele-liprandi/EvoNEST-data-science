@@ -149,7 +149,7 @@ For researchers new to computational analysis, interactive notebooks are provide
 
 ### Python: Jupyter Notebook
 
-The `_python_scripts/EvoNEST_Pipeline.ipynb` notebook provides an integrated interface encompassing all four pipeline stages:
+The `_python_scripts/Notebook.ipynb` notebook provides an integrated interface encompassing all four pipeline stages:
 
 **Usage**:
 
@@ -166,7 +166,7 @@ The `_python_scripts/EvoNEST_Pipeline.ipynb` notebook provides an integrated int
 
 ### R: R Markdown Notebook
 
-The `_r_scripts/EvoNEST_Pipeline.Rmd` notebook provides equivalent functionality for R users:
+The `_r_scripts/Notebook.Rmd` notebook provides equivalent functionality for R users:
 
 **Usage**:
 
