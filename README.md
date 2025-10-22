@@ -1,15 +1,20 @@
 # EvoNEST Data Science
 
+<div align="center">
+  <img src="_images/EvoNEST_DS.png" alt="EvoNEST Data Science Logo" width="400">
+
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
 [![R](https://img.shields.io/badge/R-4.0%2B-276DC3.svg)](https://www.r-project.org/)
 [![License](https://img.shields.io/badge/License-AGPL%203.0-orange.svg)](https://opensource.org/licenses/AGPL-3.0)
 [![Pixi](https://img.shields.io/badge/Pixi-Package%20Manager-orange.svg)](https://pixi.sh/)
 
-A bilingual (Python/R) data analysis pipeline for processing and analysing tensile test experiments on spider silk samples from the EvoNEST API. This repository provides parallel implementations in both languages with identical functionality, enabling researchers to work with their preferred computational environment whilst maintaining reproducibility and consistency across analyses.
+</div>
+
+A bilingual (Python/R) data analysis pipeline for processing and analysing tensile test experiments on biological samples from the EvoNEST API. This repository provides parallel implementations in both languages with identical functionality.
 
 ## Overview
 
-This pipeline processes stress-strain curve data from spider silk tensile tests, performing polynomial fitting, fracture detection, and hierarchical outlier analysis. The system is designed for both experienced data scientists and novice researchers through interactive notebooks and command-line scripts.
+This collection of computational tools help downloading and processing samples, traits and mechanical experiments. The repository is dedicated to the EVO|MEC laboratory instance of EvoNEST, but can be adapted to other instances. It performs performing polynomial fitting of stress strain curves, hierarchical outlier analysis, and provides an intro to visualization.
 
 ## Installation
 
@@ -102,7 +107,7 @@ EvoNEST-data-science/
 
 Execute `data_fetch.py` or `data_fetch.R` to retrieve data from the EvoNEST API:
 
-- Configure API credentials and fetch options
+- Configure API credentials and fetch options. To retrieve API credentials, go to your user inside EvoNEST by pressing your avatar in the top right corner, then navigate to "API Keys" and generate a new key.
 - Downloads raw data to `downloaded_data/` directory
 - Retrieves samples, traits, and experimental measurements
 
