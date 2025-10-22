@@ -37,7 +37,7 @@ This will:
 
 ```{r fetch-data, eval=FALSE}
 # Source and run the data fetch script
-source("_r_scripts/data_fetch.R")
+source("data_fetch.R")
 ```
 
 ---
@@ -54,7 +54,7 @@ This will:
 
 ```{r process-mechanical, eval=FALSE}
 # Source and run the mechanical data processing script
-source("_r_scripts/process_mechanical_data.R")
+source("process_mechanical_data.R")
 ```
 
 ---
@@ -72,7 +72,7 @@ The script will display summary statistics for each table.
 
 ```{r build-tables}
 # Source the analysis script (this creates the tables)
-result <- source("_r_scripts/analyse_data.R", local = TRUE)
+result <- source("analyse_data.R", local = TRUE)
 
 # The script returns the tables invisibly, but we can also access them
 # from the environment since they're created in the global environment
