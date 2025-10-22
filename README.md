@@ -18,6 +18,8 @@ This collection of computational tools help downloading and processing samples, 
 
 ## Installation
 
+> **Note**: If you already have R installed and prefer to use your existing installation, see the [Using Existing R Installation](#using-existing-r-installation) section below.
+
 ### Quick Setup Script (Optional)
 
 For an interactive setup experience on **Linux/macOS**, or **Windows with Git Bash/WSL**, use the provided setup script:
@@ -66,42 +68,28 @@ install.packages(c('httr', 'jsonlite', 'dplyr', 'ggplot2', 'tidyr', 'knitr'))
 
 **Recommended**: Use [RStudio](https://posit.co/download/rstudio-desktop/) for an integrated development environment.
 
-## Folder Structure
+### Using Existing R Installation
 
-```text
-EvoNEST-data-science/
-├── config/
-│   ├── evonest_config.json               # Configuration for data fetching
-│   ├── process_mechanics_config.json     # Configuration for mechanical data processing
-│   └── analyse_outliers_config.json      # Configuration for outlier analysis
-├── downloaded_data/                      # Raw data from API
-│   ├── experiments_data.json             # Tensile test experiments
-│   ├── traits_data.json                  # Sample traits measurements
-│   └── samples_data.json                 # Sample metadata
-├── processed_data/                       # Processed results
-│   ├── fit_data.json                     # Polynomial coefficients and metrics
-│   ├── outlier_analysis.json             # Detailed hierarchical outlier analysis
-│   ├── outlier_analysis.log              # Analysis log with full details
-│   ├── outlier_experiments.csv           # Summary of flagged outlier experiments
-│   └── plot_*.png                        # Optional: stress-strain curve plots
-├── _python_scripts/                      # Python scripts
-│   ├── data_fetch.py                     # Fetch data from EvoNEST API
-│   ├── process_mechanical_data.py        # Process tensile test data
-│   ├── analyse_data.py                   # Build structured data tables
-│   ├── analyse_outliers.py               # Analyze outliers using sigma detection
-│   └── Notebook.ipynb                    # Interactive Jupyter notebook
-├── _r_scripts/                           # R scripts (equivalent functionality)
-│   ├── data_fetch.R                      # Fetch data from EvoNEST API
-│   ├── process_mechanical_data.R         # Process tensile test data
-│   ├── analyse_data.R                    # Build structured data tables
-│   ├── analyse_outliers.R                # Analyze outliers using sigma detection
-│   └── Notebook.Rmd                      # Interactive R Markdown notebook
-├── setup/
-│   └── setup_language.sh                 # Interactive setup script for both environments
-└── pixi.toml                             # Python dependency configuration
-```
+If you already have R installed on your system and want to use it instead of installing through the setup script:
 
-## Data Pipeline
+1. **Copy the R scripts folder** to your preferred working directory:
+   ```bash
+   cp -r src/R /path/to/your/workspace/
+   ```
+
+2. **Copy the configuration folder**:
+   ```bash
+   cp -r config /path/to/your/workspace/
+   ```
+
+3. **Install required R packages**:
+   ```r
+   install.packages(c('httr', 'jsonlite', 'dplyr', 'ggplot2', 'tidyr', 'knitr'))
+   ```
+
+You can then run the scripts directly from your R environment. The Python components (`src/python/`, `pixi.toml`) are not required if you're exclusively using R.
+
+## Pipeline
 
 ### Step 1: Data Acquisition
 
@@ -119,7 +107,7 @@ Execute `process_mechanical_data.py` or `process_mechanical_data.R` to analyse t
 - Fits polynomial models (configurable degree) to experimental data
 - Calculates goodness-of-fit metrics (R², RMSE, residuals)
 - Optionally generates and saves stress-strain curve visualisations
-- Outputs polynomial coefficients to `processed_data/fit_data.json`
+- Outputs polynomial coefficients to `processed_data/hierarchical_experiment_data_no_curves.json`
 
 ### Step 3: Data Table Construction
 
@@ -130,8 +118,8 @@ Execute `analyse_data.py` or `analyse_data.R` to organise data into structured t
   - `samples_df`: Sample metadata (organisms, silk samples, taxonomy, geographical location)
   - `traits_df`: Trait measurements (diameter, mechanical properties, morphological characteristics)
   - `experiments_df`: Processed experiments with polynomial fits and statistical metrics
-- Provides comprehensive summary statistics
-- Establishes foundation for exploratory data analysis and visualisation
+- Provides summary statistics
+- Foundation for exploratory data analysis and visualisation
 
 ### Step 4: Hierarchical Outlier Analysis
 
@@ -143,18 +131,16 @@ Execute `analyse_outliers.py` or `analyse_outliers.R` to perform hierarchical ou
 - Configuration via `config/analyse_outliers_config.json`:
   - `outlier_trait_threshold`: Proportion of traits flagged as outliers to identify suspect experiments (default: 0.3)
   - `sigma_level`: Standard deviation threshold for outlier detection (default: 2)
-- Generates multiple outputs:
-  - `processed_data/outlier_analysis.json`: Comprehensive hierarchical analysis with group statistics
-  - `processed_data/outlier_experiments.csv`: Tabulated summary of flagged experiments
-  - `processed_data/outlier_analysis.log`: Detailed analysis log with full statistical breakdowns (R implementation only)
+- Generates outputs:
+  - `processed_data/outlier_analysis.json`: Hierarchical analysis with group statistics
+  - `processed_data/outlier_experiments.csv`: Summary of flagged experiments
 
-## Interactive Notebooks for Researchers
-
-For researchers new to computational analysis, interactive notebooks are provided that guide users through the complete pipeline with step-by-step instructions:
+## Interactive Notebooks
+Interactive notebooks guide users through the pipeline with step-by-step instructions:
 
 ### Python: Jupyter Notebook
 
-The `_python_scripts/Notebook.ipynb` notebook provides an integrated interface encompassing all four pipeline stages:
+The `src/python/Notebook.ipynb` notebook provides an integrated interface encompassing all four pipeline stages:
 
 **Usage**:
 
@@ -171,7 +157,7 @@ The `_python_scripts/Notebook.ipynb` notebook provides an integrated interface e
 
 ### R: R Markdown Notebook
 
-The `_r_scripts/Notebook.Rmd` notebook provides equivalent functionality for R users:
+The `src/R/Notebook.Rmd` notebook provides equivalent functionality for R users:
 
 **Usage**:
 
@@ -189,7 +175,7 @@ The `_r_scripts/Notebook.Rmd` notebook provides equivalent functionality for R u
 
 Both notebooks include:
 
-- Comprehensive documentation for each pipeline stage
-- Automatic data loading into analysis-ready structures
-- Example code demonstrating common visualisation and statistical analyses
-- Templates for custom exploratory data analysis
+- Documentation for each pipeline stage
+- Data loading into analysis-ready structures
+- Example code for visualisation and statistical analyses
+- Templates for exploratory data analysis
