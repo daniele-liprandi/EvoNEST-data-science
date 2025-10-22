@@ -81,10 +81,10 @@ class ConfigManager:
 class OutlierAnalyzer:
     """Analyze experimental data for outliers using sigma-based detection"""
     
-    def __init__(self, input_file='processed_data/fit_data.json', config_manager=None):
+    def __init__(self, input_file='processed_data/hierarchical_experiment_data_no_curves.json', config_manager=None):
         """
         Args:
-            input_file: Path to fit_data.json
+            input_file: Path to hierarchical_experiment_data_no_curves.json
             config_manager: ConfigManager instance (uses default if None)
         """
         self.input_file = input_file

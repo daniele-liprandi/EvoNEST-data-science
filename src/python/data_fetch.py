@@ -129,22 +129,24 @@ class ConfigManager:
     def _setup_api_credentials(self, config_exists):
         """Setup API credentials"""
         self._print_section("API Credentials")
-        
+
         # API Key
         current_key = self.config.get('api', {}).get('api_key')
         if current_key and config_exists:
             masked_key = current_key[:8] + "..." + current_key[-4:] if len(current_key) > 12 else "***"
             print(f"\nCurrent API key: {masked_key}")
-        
+
+        print("\n💡 To get your API key: Click your avatar (top right) → API Keys → Generate new key")
         api_key = self._prompt_input(
             "Enter API key (format: evo_xxxxx)",
             default=current_key if config_exists else None,
             required=True
         )
         self.config['api']['api_key'] = api_key
-        
+
         # Database
         current_db = self.config.get('api', {}).get('database')
+        print("\n💡 Database name is shown in the top right corner of EvoNEST, near your avatar")
         database = self._prompt_input(
             "Enter database name",
             default=current_db,

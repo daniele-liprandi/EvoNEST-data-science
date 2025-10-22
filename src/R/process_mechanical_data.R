@@ -652,7 +652,7 @@ MechanicalDataProcessor <- R6::R6Class("MechanicalDataProcessor",
       return(results)
     },
     
-    save_results = function(results, filename = "fit_data.json") {
+    save_results = function(results, filename = "hierarchical_experiment_data_no_curves.json") {
       output_data <- list(
         metadata = list(
           total_experiments = length(results),
@@ -742,7 +742,7 @@ main <- function() {
     results <- processor$process_all_experiments(data)
     
     # Save results
-    processor$save_results(results, "fit_data.json")
+    processor$save_results(results, "hierarchical_experiment_data_no_curves.json")
     
     cat("\n" %+% strrep("═", 80) %+% "\n")
     cat("✅ Processing complete!\n")

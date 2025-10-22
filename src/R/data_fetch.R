@@ -148,7 +148,7 @@ ConfigManager <- R6::R6Class(
     
     setup_api_credentials = function(config_exists) {
       private$print_section("API Credentials")
-      
+
       # API Key
       current_key <- self$config$api$api_key
       if (!is.null(current_key) && current_key != "" && config_exists) {
@@ -159,12 +159,14 @@ ConfigManager <- R6::R6Class(
         }
         cat("\nCurrent API key:", masked_key, "\n")
       }
-      
+
+      cat("\n💡 To get your API key: Click your avatar (top right) → API Keys → Generate new key\n")
       api_key <- private$prompt_input("Enter API key (format: evo_xxxxx)", default = current_key, required = TRUE)
       self$config$api$api_key <<- api_key
-      
+
       # Database
       current_db <- self$config$api$database
+      cat("\n💡 Database name is shown in the top right corner of EvoNEST, near your avatar\n")
       database <- private$prompt_input("Enter database name", default = current_db, required = TRUE)
       self$config$api$database <<- database
     },

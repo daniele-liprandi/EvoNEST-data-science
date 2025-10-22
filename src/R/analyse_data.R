@@ -114,7 +114,7 @@ load_data <- function(config) {
   cat(sprintf("  ✓ Loaded %d traits\n", length(traits_json$traits)))
 
   # Load processed experiments data
-  experiments_json <- fromJSON(file.path(processed_dir, "fit_data.json"))
+  experiments_json <- fromJSON(file.path(processed_dir, "hierarchical_experiment_data_no_curves.json"))
   cat(sprintf("  ✓ Loaded %d experiments\n",
               length(experiments_json$experiments)))
 

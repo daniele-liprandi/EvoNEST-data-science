@@ -133,7 +133,7 @@ OutlierAnalyzer <- R6::R6Class(
     experiments_df = NULL,
     logger = NULL,
     
-    initialize = function(input_file = "processed_data/fit_data.json", 
+    initialize = function(input_file = "processed_data/hierarchical_experiment_data_no_curves.json", 
                          config_manager = NULL,
                          logger = NULL) {
       self$input_file <- input_file

@@ -49,7 +49,7 @@ Run the chunk below to process mechanical test data and fit polynomial models to
 This will:
 - Prompt you to configure fracture detection and polynomial fitting parameters
 - Process all experiments in `downloaded_data/experiments_data.json`
-- Generate polynomial coefficients and save results to `processed_data/fit_data.json`
+- Generate polynomial coefficients and save results to `processed_data/hierarchical_experiment_data_no_curves.json`
 - Optionally save plots showing fitted curves
 
 ```{r process-mechanical, eval=FALSE}

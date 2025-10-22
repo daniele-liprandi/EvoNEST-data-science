@@ -94,7 +94,7 @@ def load_data(config: Dict) -> Tuple[Dict, Dict, Dict]:
     print(f"  ✓ Loaded {len(traits_json['traits'])} traits")
 
     # Load processed experiments data
-    with open(processed_dir / 'fit_data.json', 'r', encoding='utf-8') as f:
+    with open(processed_dir / 'hierarchical_experiment_data_no_curves.json', 'r', encoding='utf-8') as f:
         experiments_json = json.load(f)
     print(f"  ✓ Loaded {len(experiments_json['experiments'])} experiments")
 

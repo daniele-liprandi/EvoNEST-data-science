@@ -140,7 +140,7 @@ matplotlib = ">=3.7.0"
 seaborn = ">=0.12.0"
 
 [tasks]
-fetch = "python _python_scripts/data_fetch.py"
+fetch = "python src/python/data_fetch.py"
 lab = "jupyter lab"
 EOF
         echo -e "${GREEN}✅ pixi.toml created${NC}"
@@ -319,7 +319,7 @@ setup_r() {
     echo -e "${GREEN}✅ R environment ready${NC}"
     echo -e "\n${BLUE}═══════════════════════════════════════════════════════${NC}"
     echo -e "${GREEN}🚀 After installing packages, you can:${NC}"
-    echo -e "   ${BLUE}Rscript _r_scripts/data_fetch.R${NC}  - Fetch data from EvoNEST"
+    echo -e "   ${BLUE}Rscript src/R/data_fetch.R${NC}  - Fetch data from EvoNEST"
     echo -e "   ${BLUE}R${NC}                              - Launch R console"
     echo -e "${BLUE}═══════════════════════════════════════════════════════${NC}\n"
 
@@ -328,7 +328,7 @@ setup_r() {
     if [[ "$launch" == "y" || "$launch" == "Y" ]]; then
         echo -e "${BLUE}Starting R console...${NC}"
         echo -e "${YELLOW}Run: install.packages(c('httr', 'jsonlite', 'dplyr', 'ggplot2', 'tidyr', 'knitr'))${NC}"
-        echo -e "${YELLOW}Then: source('_r_scripts/data_fetch.R')${NC}\n"
+        echo -e "${YELLOW}Then: source('src/R/data_fetch.R')${NC}\n"
         R
     fi
 }

@@ -623,7 +623,7 @@ class MechanicalDataProcessor:
         print(f"✅ Completed: {processed} successful, {failed} failed out of {len(experiment_ids)} experiments")
         return results
     
-    def save_results(self, results, filename='fit_data.json'):
+    def save_results(self, results, filename='hierarchical_experiment_data_no_curves.json'):
         """Save polynomial coefficients and experimental data to JSON file"""
         output_data = {
             'metadata': {
@@ -707,7 +707,7 @@ def main():
         results = processor.process_all_experiments(data)
         
         # Save results
-        processor.save_results(results, 'fit_data.json')
+        processor.save_results(results, 'hierarchical_experiment_data_no_curves.json')
         
         print("\n" + "═" * 80)
         print("✅ Processing complete!")
