@@ -84,13 +84,13 @@ EvoNEST-data-science/
 │   ├── process_mechanical_data.py        # Process tensile test data
 │   ├── analyse_data.py                   # Build structured data tables
 │   ├── analyse_outliers.py               # Analyze outliers using sigma detection
-│   └── EvoNEST_Pipeline.ipynb            # Interactive Jupyter notebook
+│   └── Notebook.ipynb                    # Interactive Jupyter notebook
 ├── _r_scripts/                           # R scripts (equivalent functionality)
 │   ├── data_fetch.R                      # Fetch data from EvoNEST API
 │   ├── process_mechanical_data.R         # Process tensile test data
 │   ├── analyse_data.R                    # Build structured data tables
 │   ├── analyse_outliers.R                # Analyze outliers using sigma detection
-│   └── EvoNEST_Pipeline.Rmd              # Interactive R Markdown notebook
+│   └── Notebook.Rmd                      # Interactive R Markdown notebook
 ├── setup/
 │   └── setup_language.sh                 # Interactive setup script for both environments
 └── pixi.toml                             # Python dependency configuration

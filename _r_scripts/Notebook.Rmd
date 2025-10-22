@@ -1,0 +1,300 @@
+---
+title: "EvoNEST Data Science Pipeline"
+author: "Interactive R Workflow"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: show
+    theme: cosmo
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+# Introduction
+
+This R Markdown notebook provides a step-by-step interface for inexperienced researchers to:
+
+1. **Fetch data** from the EvoNEST API
+2. **Process mechanical data** and fit polynomial models to stress-strain curves
+3. **Build analysis tables** from downloaded and processed data
+4. **Analyze outliers** using hierarchical sigma-based detection
+
+**Instructions**: Simply run each code chunk in order by clicking the green "play" button (▶) or pressing `Ctrl+Shift+Enter`. The scripts will guide you through configuration when needed.
+
+---
+
+# Section 1: Fetch EvoNEST Data
+
+Run the chunk below to fetch samples, traits, and experiments from the EvoNEST API.
+
+This will:
+- Prompt you to configure API credentials and fetch options
+- Download data to `downloaded_data/` folder
+
+```{r fetch-data, eval=FALSE}
+# Source and run the data fetch script
+source("_r_scripts/data_fetch.R")
+```
+
+---
+
+# Section 2: Process Mechanical Data
+
+Run the chunk below to process mechanical test data and fit polynomial models to stress-strain curves.
+
+This will:
+- Prompt you to configure fracture detection and polynomial fitting parameters
+- Process all experiments in `downloaded_data/experiments_data.json`
+- Generate polynomial coefficients and save results to `processed_data/fit_data.json`
+- Optionally save plots showing fitted curves
+
+```{r process-mechanical, eval=FALSE}
+# Source and run the mechanical data processing script
+source("_r_scripts/process_mechanical_data.R")
+```
+
+---
+
+# Section 3: Build Data Analysis Tables
+
+Run the chunk below to load downloaded and processed data into tibbles for analysis.
+
+This will create three tables:
+- **samples_df**: Sample metadata (animals, silk samples, taxonomy, location)
+- **traits_df**: Trait measurements (diameter, mechanical properties, morphology)
+- **experiments_df**: Processed experiment results with polynomial fits
+
+The script will display summary statistics for each table.
+
+```{r build-tables}
+# Source the analysis script (this creates the tables)
+result <- source("_r_scripts/analyse_data.R", local = TRUE)
+
+# The script returns the tables invisibly, but we can also access them
+# from the environment since they're created in the global environment
+cat("\n✅ Tibbles are now available for analysis:\n")
+cat(sprintf("   - samples_df: %d rows × %d columns\n",
+            nrow(samples_df), ncol(samples_df)))
+cat(sprintf("   - traits_df: %d rows × %d columns\n",
+            nrow(traits_df), ncol(traits_df)))
+cat(sprintf("   - experiments_df: %d rows × %d columns\n",
+            nrow(experiments_df), ncol(experiments_df)))
+```
+
+## 3.1 Explore Samples Table
+
+View and explore the samples tibble created in the previous step.
+
+```{r explore-samples}
+cat("Samples tibble shape:", nrow(samples_df), "rows ×", ncol(samples_df), "columns\n\n")
+
+if ("type" %in% colnames(samples_df)) {
+  cat("Sample types distribution:\n")
+  print(table(samples_df$type))
+}
+
+cat("\nFirst few rows:\n")
+head(samples_df)
+```
+
+## 3.2 Explore Traits Table
+
+View and explore the traits tibble.
+
+```{r explore-traits}
+cat("Traits tibble shape:", nrow(traits_df), "rows ×", ncol(traits_df), "columns\n\n")
+
+if ("type" %in% colnames(traits_df)) {
+  cat("Trait types distribution (top 10):\n")
+  trait_counts <- sort(table(traits_df$type), decreasing = TRUE)
+  print(head(trait_counts, 10))
+}
+
+cat("\nFirst few rows:\n")
+head(traits_df)
+```
+
+## 3.3 Explore Experiments Table
+
+View and explore the processed experiments tibble with polynomial fit data.
+
+```{r explore-experiments}
+cat("Experiments tibble shape:", nrow(experiments_df), "rows ×", ncol(experiments_df), "columns\n\n")
+
+if ("r_squared" %in% colnames(experiments_df)) {
+  cat("Fit quality statistics:\n")
+  cat(sprintf("  Average R²: %.4f\n", mean(experiments_df$r_squared, na.rm = TRUE)))
+  cat(sprintf("  Min R²: %.4f\n", min(experiments_df$r_squared, na.rm = TRUE)))
+  cat(sprintf("  Max R²: %.4f\n", max(experiments_df$r_squared, na.rm = TRUE)))
+}
+
+if ("fracture_detected" %in% colnames(experiments_df)) {
+  cat("\nFracture detection:\n")
+  cat(sprintf("  Fractures detected: %d / %d\n",
+              sum(experiments_df$fracture_detected, na.rm = TRUE),
+              nrow(experiments_df)))
+}
+
+cat("\nFirst few rows:\n")
+head(experiments_df)
+```
+
+---
+
+# Section 4: Analyze Outliers
+
+Run the chunk below to perform hierarchical outlier analysis on the processed experimental data.
+
+The analysis uses sigma-based detection (1σ, 2σ, 3σ) grouped by Family > Species > Subsample Type.
+
+Configuration:
+- **Outlier trait threshold**: Percentage of traits that must be outliers to flag an experiment
+- **Sigma level**: Standard deviations threshold for outlier detection
+- Results saved to `processed_data/outlier_analysis.json`, `outlier_experiments.csv`, and `outlier_analysis.log`
+
+```{r analyze-outliers, eval=FALSE}
+# Source and run the outlier analysis script
+source("analyse_outliers.R")
+```
+
+---
+
+# Next Steps: Custom Analysis
+
+Now that you have the three tibbles loaded (`samples_df`, `traits_df`, `experiments_df`), you can perform custom analysis and create visualizations using the tidyverse and ggplot2.
+
+**Examples**:
+- Explore relationships between traits and mechanical properties
+- Create scatter plots comparing different measurements
+- Filter data by family or species
+- Analyze trends across different sample types
+
+Use the chunks below to write your own analysis code!
+
+```{r load-viz-libraries}
+# Load visualization libraries
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+
+# Print columns of traits
+cat("\nTraits DataFrame columns:\n")
+print(colnames(traits_df))
+```
+
+## Example 1: Histogram of Modulus Traits
+
+Distribution of modulus measurements across all samples.
+
+```{r viz-modulus-histogram}
+# Filter traits of type 'modulus'
+if ("type" %in% colnames(traits_df) && "measurement" %in% colnames(traits_df)) {
+  modulus_traits <- traits_df %>% filter(type == "modulus")
+
+  ggplot(modulus_traits, aes(x = measurement)) +
+    geom_histogram(bins = 30, fill = "steelblue", alpha = 0.7) +
+    geom_density(aes(y = after_stat(count)), color = "darkblue", linewidth = 1) +
+    labs(
+      title = "Distribution of Modulus Traits",
+      x = "Modulus Measurement",
+      y = "Frequency"
+    ) +
+    theme_minimal()
+}
+```
+
+## Example 2: Violin Plot for Pholcus phalangioides Dragline Samples
+
+Comparison of trait measurements across different trait types for *Pholcus phalangioides* dragline silk.
+
+```{r viz-pholcus-dragline}
+# Filter for Pholcus phalangioides dragline samples
+if ("sample.nomenclature" %in% colnames(traits_df) &&
+    "sample.subsampletype" %in% colnames(traits_df)) {
+
+  pholcus_dragline <- traits_df %>%
+    filter(sample.nomenclature == "Pholcus phalangioides",
+           sample.subsampletype == "dragline")
+
+  ggplot(pholcus_dragline, aes(x = type, y = measurement)) +
+    geom_violin(fill = "coral", alpha = 0.7) +
+    scale_y_log10() +
+    labs(
+      title = "Trait Measurements for Pholcus phalangioides Dragline Samples",
+      x = "Trait Type",
+      y = "Measurement (log scale)"
+    ) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+}
+```
+
+## Example 3: Strain at Break Across Pholcidae Species
+
+Violin plot comparing strain at break measurements for different species within the Pholcidae family, grouped by subsample type.
+
+```{r viz-pholcidae-strain}
+# Filter for Pholcidae family and strainAtBreak trait
+if ("sample.family" %in% colnames(traits_df)) {
+
+  pholcidae_strain <- traits_df %>%
+    filter(sample.family == "Pholcidae",
+           type == "strainAtBreak")
+
+  ggplot(pholcidae_strain,
+         aes(x = sample.nomenclature, y = measurement,
+             fill = sample.subsampletype)) +
+    geom_violin(position = position_dodge(width = 0.9), alpha = 0.7) +
+    labs(
+      title = "Strain At Break Measurements for Pholcidae Species",
+      x = "Species",
+      y = "Strain At Break Measurement",
+      fill = "Subsample Type"
+    ) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    scale_fill_brewer(palette = "Set2")
+}
+```
+
+## Example 4: Statistical Summary Table for Pholcidae
+
+Summary statistics of measurements grouped by species, trait type, and subsample type for the Pholcidae family.
+
+```{r table-pholcidae-summary}
+# Create statistical summary table for Pholcidae family
+if ("sample.family" %in% colnames(traits_df)) {
+
+  pholcidae_summary <- traits_df %>%
+    filter(sample.family == "Pholcidae") %>%
+    group_by(sample.nomenclature, type, sample.subsampletype) %>%
+    summarise(
+      mean = mean(measurement, na.rm = TRUE),
+      std = sd(measurement, na.rm = TRUE),
+      min = min(measurement, na.rm = TRUE),
+      max = max(measurement, na.rm = TRUE),
+      .groups = "drop"
+    )
+
+  cat("\nStatistical Summary for Pholcidae Family:\n")
+  print(pholcidae_summary, n = 50)  # Show first 50 rows
+
+  # Create a nicely formatted table using knitr::kable
+  library(knitr)
+  kable(head(pholcidae_summary, 20),
+        digits = 3,
+        caption = "Statistical Summary of Measurements for Pholcidae Species (First 20 rows)")
+}
+```
+
+---
+
+# Session Information
+
+```{r session-info}
+sessionInfo()
+```
