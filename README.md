@@ -2,7 +2,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
 [![R](https://img.shields.io/badge/R-4.0%2B-276DC3.svg)](https://www.r-project.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-AGPL%203.0-orange.svg)](https://opensource.org/licenses/AGPL-3.0)
 [![Pixi](https://img.shields.io/badge/Pixi-Package%20Manager-orange.svg)](https://pixi.sh/)
 
 A bilingual (Python/R) data analysis pipeline for processing and analysing tensile test experiments on spider silk samples from the EvoNEST API. This repository provides parallel implementations in both languages with identical functionality, enabling researchers to work with their preferred computational environment whilst maintaining reproducibility and consistency across analyses.
