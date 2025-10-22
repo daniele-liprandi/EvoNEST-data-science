@@ -1,0 +1,32 @@
+# pixi environments
+.pixi/*
+!.pixi/config.toml
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# R data files
+*.RData
+*.rda
+*.rds
+.Rhistory
+.Rproj.user/
+
+# VSCode settings
+.vscode/
+
+# data folders
+*_data/
+
+# config files
+config/*.json
+
+# AI configuration files
+ai_configs/*.yaml
+CLAUDE.md
