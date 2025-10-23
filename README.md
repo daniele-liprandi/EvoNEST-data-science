@@ -20,22 +20,32 @@ This collection of computational tools help downloading and processing samples, 
 
 > **Note**: If you already have R installed and prefer to use your existing installation, see the [Using Existing R Installation](#using-existing-r-installation) section below.
 
-### Quick Setup Script (Optional)
+### Quick Setup Script (Recommended)
 
-For an interactive setup experience on **Linux/macOS**, or **Windows with Git Bash/WSL**, use the provided setup script:
+For an interactive setup experience, simply **double-click** the setup file for your operating system:
 
-```bash
-bash setup/setup_language.sh
-```
+#### Windows
+Double-click **`setup.bat`** or **`setup.ps1`** in the main directory.
 
-This script will:
-
-- Detect your operating system
+The script will:
+- Automatically detect if Git Bash is available and use it, or
+- Fall back to native PowerShell installation
 - Install pixi (for Python) or check R installation
 - Guide you through dependency installation
 - Optionally launch Jupyter Lab or R console
 
-> **Note for Windows users**: The setup script requires bash (available via Git Bash or WSL). If you don't have these installed, the manual setup instructions below work directly in PowerShell or Command Prompt.
+#### Linux/macOS
+Double-click **`setup.sh`** in the main directory (if your system supports it), or run from terminal:
+
+```bash
+bash setup.sh
+```
+
+The script will:
+- Detect your operating system
+- Install pixi (for Python) or check R installation
+- Guide you through dependency installation
+- Optionally launch Jupyter Lab or R console
 
 ### Manual Setup Instructions
 
