@@ -594,7 +594,7 @@ OutlierAnalyzer <- R6::R6Class(
       
       analysis_file <- file.path(output_path, self$config$output$analysis_file)
       
-      write_json(output_data, analysis_file, pretty = TRUE)
+      write_json(output_data, analysis_file, pretty = TRUE, auto_unbox = TRUE)
       
       if (!is.null(self$logger)) {
         self$logger$info(paste("Outlier analysis saved to:", analysis_file))

@@ -73,7 +73,7 @@ ConfigManager <- R6::R6Class("ConfigManager",
     save_config = function() {
       tryCatch({
         dir.create(self$config_dir, showWarnings = FALSE, recursive = TRUE)
-        jsonlite::write_json(self$config, self$config_file, pretty = TRUE)
+        jsonlite::write_json(self$config, self$config_file, pretty = TRUE, auto_unbox = TRUE)
         cat(sprintf("✅ Configuration saved to %s\n", self$config_file))
         return(TRUE)
       }, error = function(e) {

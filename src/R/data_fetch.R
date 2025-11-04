@@ -59,7 +59,7 @@ ConfigManager <- R6::R6Class(
     save_config = function() {
       tryCatch({
         dir.create(self$config_dir, showWarnings = FALSE, recursive = TRUE)
-        write_json(self$config, self$config_file, pretty = TRUE)
+        write_json(self$config, self$config_file, pretty = TRUE, auto_unbox = TRUE)
         cat("✅ Configuration saved to", self$config_file, "\n")
         return(TRUE)
       }, error = function(e) {
