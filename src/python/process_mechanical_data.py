@@ -18,8 +18,8 @@ from tqdm import tqdm
 
 class ConfigManager:
     """Manages persistent configuration for mechanical data processing"""
-    
-    CONFIG_DIR = Path(__file__).parent.parent / "config"
+
+    CONFIG_DIR = Path(__file__).parent.parent.parent / "config"
     CONFIG_FILE = CONFIG_DIR / "process_mechanics_config.json"
     
     DEFAULT_CONFIG = {
@@ -313,7 +313,7 @@ class MechanicalDataProcessor:
         self.show_plots = config['processing']['show_plots']
         self.save_plots = config['processing']['save_plots']
         # Setup output directory (use absolute path from project root)
-        self.output_dir = Path(__file__).parent.parent / config['output']['output_dir']
+        self.output_dir = Path(__file__).parent.parent.parent / config['output']['output_dir']
         
         # Create output directory
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -699,7 +699,7 @@ def main():
     
     try:
         # Load experiments data
-        data_path = Path(__file__).parent.parent / "downloaded_data" / "experiments_data.json"
+        data_path = Path(__file__).parent.parent.parent / "downloaded_data" / "experiments_data.json"
         print(f"\n📂 Loading experiments from: {data_path}")
         data = load_experiments_data(str(data_path))
         print(f"✅ Loaded {len(data['experiments'])} experiments")

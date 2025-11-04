@@ -15,7 +15,7 @@ import requests
 class ConfigManager:
     """Manages persistent configuration for EvoNEST data fetching"""
     
-    CONFIG_DIR = Path(__file__).parent.parent / "config"
+    CONFIG_DIR = Path(__file__).parent.parent.parent / "config"
     CONFIG_FILE = CONFIG_DIR / "evonest_config.json"
     
     DEFAULT_CONFIG = {
@@ -388,7 +388,7 @@ class EvoNESTClient:
 
 def save_data(data, filename):
     """Save data to JSON file in downloaded_data folder"""
-    output_dir = Path(__file__).parent.parent / "downloaded_data"
+    output_dir = Path(__file__).parent.parent.parent / "downloaded_data"
     output_dir.mkdir(parents=True, exist_ok=True)
     
     output_file = output_dir / filename

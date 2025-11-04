@@ -16,7 +16,7 @@ import pandas as pd
 class ConfigManager:
     """Manages persistent configuration for data analysis"""
 
-    CONFIG_DIR = Path(__file__).parent.parent / "config"
+    CONFIG_DIR = Path(__file__).parent.parent.parent / "config"
     CONFIG_FILE = CONFIG_DIR / "analyse_data_config.json"
 
     DEFAULT_CONFIG = {
@@ -79,7 +79,7 @@ def load_data(config: Dict) -> Tuple[Dict, Dict, Dict]:
     print("📂 Loading data files...")
 
     # Define data paths from config
-    base_dir = Path(__file__).parent.parent
+    base_dir = Path(__file__).parent.parent.parent
     data_dir = base_dir / config['paths']['downloaded_data_dir']
     processed_dir = base_dir / config['paths']['processed_data_dir']
 

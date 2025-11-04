@@ -18,8 +18,8 @@ from tqdm import tqdm
 
 class ConfigManager:
     """Manages persistent configuration for outlier analysis"""
-    
-    CONFIG_DIR = Path(__file__).parent.parent / "config"
+
+    CONFIG_DIR = Path(__file__).parent.parent.parent / "config"
     CONFIG_FILE = CONFIG_DIR / "analyse_outliers_config.json"
     
     DEFAULT_CONFIG = {
@@ -100,7 +100,7 @@ class OutlierAnalyzer:
         
     def load_data(self):
         """Load the processed experimental data"""
-        input_path = Path(__file__).parent.parent / self.input_file
+        input_path = Path(__file__).parent.parent.parent / self.input_file
         
         with open(input_path, 'r', encoding='utf-8') as f:
             self.data = json.load(f)
@@ -441,7 +441,7 @@ class OutlierAnalyzer:
                 'traits': traits_output
             }
         
-        output_path = Path(__file__).parent.parent / self.output_dir
+        output_path = Path(__file__).parent.parent.parent / self.output_dir
         output_path.mkdir(parents=True, exist_ok=True)
         
         analysis_file = output_path / self.config['output']['analysis_file']
@@ -474,7 +474,7 @@ class OutlierAnalyzer:
                       f"{row['outlier_traits']:>2}/{row['total_traits']:>2} traits ({row['outlier_percentage']*100:>5.1f}%)")
             
             # Save outlier experiment list
-            output_path = Path(__file__).parent.parent / self.output_dir
+            output_path = Path(__file__).parent.parent.parent / self.output_dir
             output_path.mkdir(parents=True, exist_ok=True)
             outlier_file = output_path / self.config['output']['experiments_file']
             outlier_exps.to_csv(outlier_file, index=False)
