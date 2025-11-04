@@ -1,10 +1,137 @@
 # EvoNEST Data Science Setup Script for Windows
 # Double-click this file to run the setup
+# Command-line usage: powershell -ExecutionPolicy Bypass -File setup.ps1 [-Uninstall]
+
+param(
+    [switch]$Uninstall
+)
+
+# Uninstall pixi
+function Uninstall-Pixi {
+    Write-Host ""
+    Write-Host "========================================================" -ForegroundColor Blue
+    Write-Host "  Uninstalling Pixi" -ForegroundColor Blue
+    Write-Host "========================================================" -ForegroundColor Blue
+    Write-Host ""
+
+    # Step 1: Clean pixi cache
+    Write-Host "1️⃣  Cleaning pixi cache..." -ForegroundColor Yellow
+    if (Get-Command pixi -ErrorAction SilentlyContinue) {
+        & pixi clean cache 2>$null
+        Write-Host "✅ Cache cleaned" -ForegroundColor Green
+    } else {
+        Write-Host "⚠️  Pixi not in PATH, skipping cache clean" -ForegroundColor Yellow
+    }
+
+    # Step 2: Clean workspace environment
+    Write-Host ""
+    Write-Host "2️⃣  Cleaning workspace environment..." -ForegroundColor Yellow
+    if ((Test-Path "pixi.lock") -or (Test-Path "pixi.toml")) {
+        if (Get-Command pixi -ErrorAction SilentlyContinue) {
+            & pixi clean 2>$null
+            Write-Host "✅ Workspace cleaned" -ForegroundColor Green
+        }
+    } else {
+        Write-Host "⚠️  No pixi workspace found in current directory" -ForegroundColor Yellow
+    }
+
+    # Step 3: Remove pixi directory
+    Write-Host ""
+    Write-Host "3️⃣  Removing pixi installation directory..." -ForegroundColor Yellow
+    $pixiDir = Join-Path $env:USERPROFILE ".pixi"
+    if (Test-Path $pixiDir) {
+        Remove-Item -Recurse -Force $pixiDir
+        Write-Host "✅ Pixi directory removed" -ForegroundColor Green
+    } else {
+        Write-Host "⚠️  Pixi directory not found at $pixiDir" -ForegroundColor Yellow
+    }
+
+    # Step 4: Remove workspace files
+    Write-Host ""
+    Write-Host "4️⃣  Removing workspace files..." -ForegroundColor Yellow
+    if (Test-Path "pixi.toml") {
+        Remove-Item -Force "pixi.toml"
+        Write-Host "✅ pixi.toml removed" -ForegroundColor Green
+    }
+    if (Test-Path "pixi.lock") {
+        Remove-Item -Force "pixi.lock"
+        Write-Host "✅ pixi.lock removed" -ForegroundColor Green
+    }
+
+    Write-Host ""
+    Write-Host "✅ Pixi uninstalled successfully" -ForegroundColor Green
+    Write-Host "⚠️  Manual step required:" -ForegroundColor Yellow
+    Write-Host "   Remove %UserProfile%\.pixi\bin from your PATH environment variable" -ForegroundColor Yellow
+    Write-Host ""
+}
+
+# Uninstall R
+function Uninstall-R {
+    Write-Host ""
+    Write-Host "========================================================" -ForegroundColor Blue
+    Write-Host "  Uninstalling R" -ForegroundColor Blue
+    Write-Host "========================================================" -ForegroundColor Blue
+    Write-Host ""
+
+    Write-Host "⚠️  Automatic R uninstall is not available on Windows." -ForegroundColor Yellow
+    Write-Host "Please uninstall R manually through:" -ForegroundColor Yellow
+    Write-Host "  Settings > Apps > Apps & features > Search for 'R'" -ForegroundColor Yellow
+    Write-Host ""
+}
+
+# Main uninstall flow
+function Invoke-Uninstall {
+    Write-Host "========================================================" -ForegroundColor Blue
+    Write-Host "  EvoNEST Data Science Environment Uninstaller" -ForegroundColor Red
+    Write-Host "========================================================" -ForegroundColor Blue
+    Write-Host ""
+
+    Write-Host "What would you like to uninstall?" -ForegroundColor Cyan
+    Write-Host "  1. Python (pixi)" -ForegroundColor Green
+    Write-Host "  2. R" -ForegroundColor Green
+    Write-Host "  3. Both" -ForegroundColor Green
+    Write-Host "  q. Quit" -ForegroundColor Green
+    Write-Host ""
+
+    $choice = Read-Host "Enter your choice (1, 2, 3, or q)"
+
+    switch ($choice) {
+        "1" {
+            Uninstall-Pixi
+        }
+        "2" {
+            Uninstall-R
+        }
+        "3" {
+            $confirm = Read-Host "Are you sure you want to uninstall all environments? (y/N)"
+            if ($confirm -eq "y" -or $confirm -eq "Y") {
+                Uninstall-Pixi
+                Uninstall-R
+            } else {
+                Write-Host "Cancelled" -ForegroundColor Yellow
+            }
+        }
+        "q" {
+            Write-Host "Exiting..." -ForegroundColor Yellow
+            exit 0
+        }
+        default {
+            Write-Host "Invalid choice" -ForegroundColor Red
+            Invoke-Uninstall
+        }
+    }
+}
 
 Write-Host "========================================================" -ForegroundColor Blue
 Write-Host "  EvoNEST Data Science Environment Setup for Windows" -ForegroundColor Blue
 Write-Host "========================================================" -ForegroundColor Blue
 Write-Host ""
+
+# Check if uninstall flag is set
+if ($Uninstall) {
+    Invoke-Uninstall
+    exit 0
+}
 
 # Check if Git Bash is available
 $gitBashPaths = @(
@@ -26,8 +153,12 @@ if ($bashPath) {
     Write-Host "Launching setup script..." -ForegroundColor Green
     Write-Host ""
 
-    # Run the bash setup script
-    & $bashPath -c "cd '$PWD' && bash setup/setup_language.sh"
+    # Run the bash setup script, passing uninstall flag if specified
+    if ($Uninstall) {
+        & $bashPath -c "cd '$PWD' && bash setup/setup_language.sh --uninstall"
+    } else {
+        & $bashPath -c "cd '$PWD' && bash setup/setup_language.sh"
+    }
 } else {
     Write-Host "Git Bash not found. Running PowerShell-native setup..." -ForegroundColor Yellow
     Write-Host ""
@@ -36,10 +167,11 @@ if ($bashPath) {
     Write-Host "Choose your environment:" -ForegroundColor Cyan
     Write-Host "  1. Python (with pixi and Jupyter Lab)" -ForegroundColor Green
     Write-Host "  2. R" -ForegroundColor Green
+    Write-Host "  u. Uninstall" -ForegroundColor Green
     Write-Host "  q. Quit" -ForegroundColor Green
     Write-Host ""
 
-    $choice = Read-Host "Enter your choice (1, 2, or q)"
+    $choice = Read-Host "Enter your choice (1, 2, u, or q)"
 
     switch ($choice) {
         "1" {
@@ -137,6 +269,9 @@ if ($bashPath) {
                 Write-Host "Run: install.packages(c('httr', 'jsonlite', 'dplyr', 'ggplot2', 'tidyr', 'knitr'))" -ForegroundColor Yellow
                 R
             }
+        }
+        "u" {
+            Invoke-Uninstall
         }
         "q" {
             Write-Host "Exiting setup" -ForegroundColor Yellow
