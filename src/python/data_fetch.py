@@ -107,10 +107,15 @@ class ConfigManager:
         
         # Setup fetch options
         print("\n" + "═" * 80)
-        configure_options = self._prompt_yes_no(
-            "Configure advanced fetch options?",
-            default=False
-        )
+        # If no config exists, always configure options (first-time setup)
+        # If config exists, ask the user
+        if not config_exists:
+            configure_options = True
+        else:
+            configure_options = self._prompt_yes_no(
+                "Configure advanced fetch options?",
+                default=False
+            )
         
         if configure_options:
             self._setup_fetch_options()
@@ -129,6 +134,16 @@ class ConfigManager:
     def _setup_api_credentials(self, config_exists):
         """Setup API credentials"""
         self._print_section("API Credentials")
+
+        # Base URL
+        current_url = self.config.get('api', {}).get('base_url')
+        print("\n💡 EvoNEST API base URL (use default unless you have a custom instance)")
+        base_url = self._prompt_input(
+            "Enter API base URL",
+            default=current_url,
+            required=True
+        )
+        self.config['api']['base_url'] = base_url
 
         # API Key
         current_key = self.config.get('api', {}).get('api_key')
@@ -179,6 +194,7 @@ class ConfigManager:
     def _print_current_config(self):
         """Print current configuration"""
         print("\n┌─ API Settings ──────────────────────────────────────────")
+        print(f"│ Base URL: {self.config.get('api', {}).get('base_url')}")
         api_key = self.config.get('api', {}).get('api_key')
         masked_key = api_key[:8] + "..." + api_key[-4:] if api_key and len(api_key) > 12 else "Not set"
         print(f"│ API Key:  {masked_key}")
@@ -307,7 +323,7 @@ class EvoNESTClient:
         
         params = {
             "database": self.database,
-            "includeSampleFeatures": str(include_sample_features).lower()
+            "includeSampleFeatures": str(inclHi ude_sample_features).lower()
         }
         
         try:
@@ -319,7 +335,7 @@ class EvoNESTClient:
             
             if response.status_code == 200:
                 traits = response.json()
-                print(f"✅ Successfully retrieved {len(traits)} traits\n")
+                print(f"✅ Successfully retrieved {len(traits['traits'])} traits\n")
                 return traits
             else:
                 print(f"❌ Error fetching traits: {response.status_code}")
@@ -350,7 +366,7 @@ class EvoNESTClient:
             
             if response.status_code == 200:
                 experiments = response.json()
-                print(f"✅ Successfully retrieved {len(experiments)} experiments\n")
+                print(f"✅ Successfully retrieved {len(experiments['experiments'])} experiments\n")
                 return experiments
             else:
                 print(f"❌ Error fetching experiments: {response.status_code}")
