@@ -323,7 +323,7 @@ class EvoNESTClient:
         
         params = {
             "database": self.database,
-            "includeSampleFeatures": str(inclHi ude_sample_features).lower()
+            "includeSampleFeatures": str(include_sample_features).lower()
         }
         
         try:
