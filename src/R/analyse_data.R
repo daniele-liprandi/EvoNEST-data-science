@@ -238,6 +238,12 @@ build_traits_table <- function(traits_json) {
       
       .x
     })
+  
+  # Convert measurement column to numeric
+  if ("measurement" %in% colnames(traits_df)) {
+    traits_df <- traits_df %>%
+      mutate(measurement = as.numeric(measurement))
+  }
 
   cat(sprintf("  ✓ Traits DataFrame: %d rows × %d columns\n",
               nrow(traits_df), ncol(traits_df)))
