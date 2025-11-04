@@ -312,7 +312,8 @@ class MechanicalDataProcessor:
         self.polynomial_degree = config['processing']['polynomial_degree']
         self.show_plots = config['processing']['show_plots']
         self.save_plots = config['processing']['save_plots']
-        self.output_dir = Path(config['output']['output_dir'])
+        # Setup output directory (use absolute path from project root)
+        self.output_dir = Path(__file__).parent.parent / config['output']['output_dir']
         
         # Create output directory
         self.output_dir.mkdir(parents=True, exist_ok=True)
