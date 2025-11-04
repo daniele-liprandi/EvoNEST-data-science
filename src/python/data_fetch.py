@@ -173,11 +173,19 @@ class ConfigManager:
         """Setup fetch options"""
         self._print_section("Fetch Options")
         
+        print("\n💡 Related: Include hierarchical parent/sample chain within data structures")
         include_related = self._prompt_yes_no(
             "Include related/parent chain information?",
             default=self.config.get('fetch_options', {}).get('include_related', False)
         )
         self.config['fetch_options']['include_related'] = include_related
+        
+        print("\n💡 Sample Features: Add sample columns to trait measurements (flattened)")
+        include_sample_features = self._prompt_yes_no(
+            "Include sample features in traits?",
+            default=self.config.get('fetch_options', {}).get('include_sample_features', False)
+        )
+        self.config['fetch_options']['include_sample_features'] = include_sample_features
         
         include_raw_data = self._prompt_yes_no(
             "Include raw experimental data?",
@@ -202,9 +210,10 @@ class ConfigManager:
         
         print("\n├─ Fetch Options ────────────────────────────────────────")
         opts = self.config.get('fetch_options', {})
-        print(f"│ Include Related:     {opts.get('include_related', False)}")
-        print(f"│ Include Raw Data:    {opts.get('include_raw_data', False)}")
-        print(f"│ Include Original:    {opts.get('include_original', False)}")
+        print(f"│ Include Related:        {opts.get('include_related', False)}")
+        print(f"│ Include Sample Features: {opts.get('include_sample_features', False)}")
+        print(f"│ Include Raw Data:       {opts.get('include_raw_data', False)}")
+        print(f"│ Include Original:       {opts.get('include_original', False)}")
         print("└────────────────────────────────────────────────────────")
     
     @staticmethod

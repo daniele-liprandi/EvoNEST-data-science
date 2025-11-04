@@ -186,11 +186,19 @@ ConfigManager <- R6::R6Class(
     setup_fetch_options = function() {
       private$print_section("Fetch Options")
       
+      cat("\n💡 Related: Include hierarchical parent/sample chain within data structures\n")
       include_related <- private$prompt_yes_no(
         "Include related/parent chain information?",
         default = self$config$fetch_options$include_related
       )
       self$config$fetch_options$include_related <<- include_related
+      
+      cat("\n💡 Sample Features: Add sample columns to trait measurements (flattened)\n")
+      include_sample_features <- private$prompt_yes_no(
+        "Include sample features in traits?",
+        default = self$config$fetch_options$include_sample_features
+      )
+      self$config$fetch_options$include_sample_features <<- include_sample_features
       
       include_raw_data <- private$prompt_yes_no(
         "Include raw experimental data?",
@@ -217,9 +225,10 @@ ConfigManager <- R6::R6Class(
       cat("│ Database:", self$config$api$database, "\n")
       
       cat("\n├─ Fetch Options ────────────────────────────────────────\n")
-      cat("│ Include Related:    ", self$config$fetch_options$include_related, "\n")
-      cat("│ Include Raw Data:   ", self$config$fetch_options$include_raw_data, "\n")
-      cat("│ Include Original:   ", self$config$fetch_options$include_original, "\n")
+      cat("│ Include Related:        ", self$config$fetch_options$include_related, "\n")
+      cat("│ Include Sample Features:", self$config$fetch_options$include_sample_features, "\n")
+      cat("│ Include Raw Data:       ", self$config$fetch_options$include_raw_data, "\n")
+      cat("│ Include Original:       ", self$config$fetch_options$include_original, "\n")
       cat("└────────────────────────────────────────────────────────\n")
     },
     
