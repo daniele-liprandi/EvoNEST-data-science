@@ -45,10 +45,18 @@ command_exists() {
 
 # Find pixi executable (may be in Windows PATH but not bash PATH)
 find_pixi() {
-    # First check if it's in bash PATH
-    if command_exists pixi; then
-        echo "pixi"
-        return 0
+    # First check if it's in bash PATH and actually runnable
+    if command -v pixi >/dev/null 2>&1; then
+        # On Linux/Mac, verify it's actually executable and responds
+        if [[ "$OS" != "Windows" ]]; then
+            if pixi --version >/dev/null 2>&1; then
+                echo "pixi"
+                return 0
+            fi
+        else
+            echo "pixi"
+            return 0
+        fi
     fi
     
     # On Windows, try pixi.exe
@@ -107,7 +115,7 @@ setup_python() {
     
     # Check if pixi is installed
     local pixi_cmd=$(find_pixi)
-    if [ $? -ne 0 ]; then
+    if [ -z "$pixi_cmd" ]; then
         echo -e "${YELLOW}⚠️  Pixi not found${NC}"
         install_pixi
         exit 0  # Exit to let user restart terminal
@@ -123,7 +131,7 @@ setup_python() {
 # Update pixi.toml if it doesn't exist
         echo -e "${YELLOW}📝 Creating pixi.toml configuration...${NC}"
         cat > pixi.toml << 'EOF'
-[project]
+[workspace]
 name = "evonest-data-science"
 version = "0.1.0"
 description = "Data science tools for EvoNEST platform"
@@ -138,6 +146,7 @@ numpy = ">=1.24.0"
 jupyterlab = ">=4.0.0"
 matplotlib = ">=3.7.0"
 seaborn = ">=0.12.0"
+tqdm = ">=4.0"
 
 [tasks]
 fetch = "python src/python/data_fetch.py"
@@ -161,7 +170,42 @@ EOF
         # Ask if user wants to launch Jupyter Lab
         read -p "Launch Jupyter Lab now? (y/n): " launch
         if [[ "$launch" == "y" || "$launch" == "Y" ]]; then
-            "$pixi_cmd" run lab
+            echo -e "\n${YELLOW}ℹ️  Jupyter Lab is starting...${NC}"
+            echo -e "${YELLOW}Please wait for the connection URL to appear below.${NC}"
+            echo -e "${YELLOW}It may take a few seconds on first launch.${NC}\n"
+            
+            # Launch in background and capture output
+            "$pixi_cmd" run lab 2>&1 | tee /tmp/jupyter_output.log &
+            JUPYTER_PID=$!
+            
+            # Wait for Jupyter to start and extract the URL
+            sleep 3
+            JUPYTER_URL=$(grep -oP 'http://localhost:\d+/lab\?token=\w+' /tmp/jupyter_output.log | head -1)
+            
+            if [[ -n "$JUPYTER_URL" ]]; then
+                echo -e "\n${GREEN}✅ Jupyter Lab is ready!${NC}"
+                echo -e "\n${BLUE}════════════════════════════════════════════════════════${NC}"
+                echo -e "${GREEN}📖 Open this URL in your browser:${NC}"
+                echo -e "${BLUE}$JUPYTER_URL${NC}"
+                echo -e "${BLUE}════════════════════════════════════════════════════════${NC}\n"
+                
+                # Try to open in browser if possible
+                if command_exists xdg-open; then
+                    echo -e "${YELLOW}Opening browser...${NC}\n"
+                    xdg-open "$JUPYTER_URL" 2>/dev/null || true
+                elif command_exists open; then
+                    echo -e "${YELLOW}Opening browser...${NC}\n"
+                    open "$JUPYTER_URL" 2>/dev/null || true
+                fi
+                
+                echo -e "${YELLOW}Press Ctrl+C to stop Jupyter Lab${NC}\n"
+            else
+                echo -e "\n${YELLOW}⚠️  Jupyter Lab started but URL not found in output.${NC}"
+                echo -e "${YELLOW}Check the terminal output above for connection details.${NC}\n"
+            fi
+            
+            # Keep the parent script running while Jupyter runs
+            wait $JUPYTER_PID 2>/dev/null || true
         fi
     else
         echo -e "${RED}❌ Failed to install dependencies${NC}"
@@ -333,10 +377,159 @@ setup_r() {
     fi
 }
 
+# Uninstall pixi
+uninstall_pixi() {
+    echo -e "\n${BLUE}═══════════════════════════════════════════════════════${NC}"
+    echo -e "${BLUE}🗑️  Uninstalling pixi${NC}"
+    echo -e "${BLUE}═══════════════════════════════════════════════════════${NC}\n"
+    
+    # Step 1: Clean pixi cache
+    echo -e "${YELLOW}1️⃣  Cleaning pixi cache...${NC}"
+    if command -v pixi >/dev/null 2>&1; then
+        pixi clean cache 2>/dev/null || true
+        echo -e "${GREEN}✅ Cache cleaned${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Pixi not in PATH, skipping cache clean${NC}"
+    fi
+    
+    # Step 2: Clean workspace environment
+    echo -e "\n${YELLOW}2️⃣  Cleaning workspace environment...${NC}"
+    if [ -f "pixi.lock" ] || [ -f "pixi.toml" ]; then
+        if command -v pixi >/dev/null 2>&1; then
+            pixi clean 2>/dev/null || true
+            echo -e "${GREEN}✅ Workspace cleaned${NC}"
+        fi
+    else
+        echo -e "${YELLOW}⚠️  No pixi workspace found in current directory${NC}"
+    fi
+    
+    # Step 3: Remove pixi directory
+    echo -e "\n${YELLOW}3️⃣  Removing pixi installation directory...${NC}"
+    if [ -d "$HOME/.pixi" ]; then
+        rm -rf "$HOME/.pixi"
+        echo -e "${GREEN}✅ Pixi directory removed${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Pixi directory not found at $HOME/.pixi${NC}"
+    fi
+    
+    # Step 4: Remove pixi.toml and pixi.lock from workspace
+    echo -e "\n${YELLOW}4️⃣  Removing workspace files...${NC}"
+    if [ -f "pixi.toml" ]; then
+        rm -f "pixi.toml"
+        echo -e "${GREEN}✅ pixi.toml removed${NC}"
+    fi
+    if [ -f "pixi.lock" ]; then
+        rm -f "pixi.lock"
+        echo -e "${GREEN}✅ pixi.lock removed${NC}"
+    fi
+    
+    echo -e "\n${GREEN}✅ Pixi uninstalled successfully${NC}"
+    echo -e "${YELLOW}⚠️  Manual step required:${NC}"
+    echo -e "${YELLOW}   Remove ~/.pixi/bin from your PATH in:${NC}"
+    echo -e "${YELLOW}   - ~/.bashrc${NC}"
+    echo -e "${YELLOW}   - ~/.zshrc${NC}"
+    echo -e "${YELLOW}   - or other shell configuration files${NC}\n"
+}
+
+# Uninstall R (Linux only - manual on other platforms)
+uninstall_r() {
+    echo -e "\n${BLUE}═══════════════════════════════════════════════════════${NC}"
+    echo -e "${BLUE}🗑️  Uninstalling R${NC}"
+    echo -e "${BLUE}═══════════════════════════════════════════════════════${NC}\n"
+    
+    if [[ "$OS" == "Linux" ]]; then
+        # Check which package manager is available
+        if command_exists apt-get; then
+            echo -e "${YELLOW}Removing R using apt...${NC}"
+            sudo apt-get remove -y r-base r-base-dev
+            echo -e "${GREEN}✅ R uninstalled successfully${NC}"
+        elif command_exists yum; then
+            echo -e "${YELLOW}Removing R using yum...${NC}"
+            sudo yum remove -y R
+            echo -e "${GREEN}✅ R uninstalled successfully${NC}"
+        elif command_exists dnf; then
+            echo -e "${YELLOW}Removing R using dnf...${NC}"
+            sudo dnf remove -y R
+            echo -e "${GREEN}✅ R uninstalled successfully${NC}"
+        else
+            echo -e "${RED}❌ No supported package manager found${NC}"
+            echo -e "${YELLOW}Please uninstall R manually${NC}"
+            return 1
+        fi
+    else
+        echo -e "${YELLOW}⚠️  Automatic R uninstall is only supported on Linux${NC}"
+        echo -e "${YELLOW}Please uninstall R manually from your system${NC}"
+        return 1
+    fi
+    
+    echo -e "\n"
+}
+
+# Uninstall everything
+uninstall_all() {
+    echo -e "\n${BLUE}═══════════════════════════════════════════════════════${NC}"
+    echo -e "${RED}⚠️  UNINSTALL ALL ENVIRONMENTS${NC}"
+    echo -e "${BLUE}═══════════════════════════════════════════════════════${NC}\n"
+    
+    read -p "Are you sure you want to uninstall all environments? (y/N): " confirm
+    if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+        echo -e "${YELLOW}Cancelled${NC}\n"
+        return 0
+    fi
+    
+    uninstall_pixi
+    uninstall_r
+    
+    echo -e "${GREEN}✅ All environments uninstalled${NC}\n"
+}
+
 # Main script
 main() {
+    # Check for --uninstall flag
+    if [[ "${1:-}" == "--uninstall" ]] || [[ "${1:-}" == "-u" ]]; then
+        echo -e "${BLUE}═══════════════════════════════════════════════════════${NC}"
+        echo -e "${BLUE}�️  EvoNEST Data Science Environment Uninstaller${NC}"
+        echo -e "${BLUE}═══════════════════════════════════════════════════════${NC}\n"
+        
+        detect_os
+        
+        echo -e "\n${BLUE}📊 What would you like to uninstall?${NC}"
+        echo -e "   ${GREEN}1${NC}. Python (pixi)"
+        echo -e "   ${GREEN}2${NC}. R"
+        echo -e "   ${GREEN}3${NC}. Both"
+        echo -e "   ${GREEN}q${NC}. Quit"
+        
+        while true; do
+            read -p $'\n'"Enter your choice (1, 2, 3, or q): " choice
+            
+            case "$choice" in
+                1)
+                    uninstall_pixi
+                    break
+                    ;;
+                2)
+                    uninstall_r
+                    break
+                    ;;
+                3)
+                    uninstall_all
+                    break
+                    ;;
+                q|Q)
+                    echo -e "${YELLOW}👋 Cancelled${NC}"
+                    exit 0
+                    ;;
+                *)
+                    echo -e "${RED}❌ Invalid choice. Please enter 1, 2, 3, or q${NC}"
+                    ;;
+            esac
+        done
+        
+        return 0
+    fi
+    
     echo -e "${BLUE}═══════════════════════════════════════════════════════${NC}"
-    echo -e "${BLUE}🚀 EvoNEST Data Science Environment Setup${NC}"
+    echo -e "${BLUE}�🚀 EvoNEST Data Science Environment Setup${NC}"
     echo -e "${BLUE}═══════════════════════════════════════════════════════${NC}\n"
     
     # Detect OS
@@ -347,10 +540,11 @@ main() {
     echo -e "   ${GREEN}1${NC}. Python (with pixi and Jupyter Lab)"
     echo -e "   ${GREEN}2${NC}. R"
     echo -e "   ${GREEN}3${NC}. Both (install both environments)"
+    echo -e "   ${GREEN}u${NC}. Uninstall"
     echo -e "   ${GREEN}q${NC}. Quit"
     
     while true; do
-        read -p $'\n'"Enter your choice (1, 2, 3, or q): " choice
+        read -p $'\n'"Enter your choice (1, 2, 3, u, or q): " choice
         
         case "$choice" in
             1)
@@ -368,12 +562,17 @@ main() {
                 setup_r
                 break
                 ;;
+            u|U)
+                echo -e "\n${BLUE}Redirecting to uninstall...${NC}\n"
+                main "--uninstall"
+                break
+                ;;
             q|Q)
                 echo -e "${YELLOW}👋 Exiting setup${NC}"
                 exit 0
                 ;;
             *)
-                echo -e "${RED}❌ Invalid choice. Please enter 1, 2, 3, or q${NC}"
+                echo -e "${RED}❌ Invalid choice. Please enter 1, 2, 3, u, or q${NC}"
                 ;;
         esac
     done
@@ -381,5 +580,5 @@ main() {
     echo -e "\n${GREEN}✅ Setup complete!${NC}\n"
 }
 
-# Run main function
-main
+# Run main function with all arguments
+main "$@"
