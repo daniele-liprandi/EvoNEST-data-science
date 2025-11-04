@@ -98,7 +98,13 @@ ConfigManager <- R6::R6Class(
       
       # Setup fetch options
       cat("\n", strrep("═", 80), "\n", sep = "")
-      configure_options <- private$prompt_yes_no("Configure advanced fetch options?", default = FALSE)
+      # If no config exists, always configure options (first-time setup)
+      # If config exists, ask the user
+      if (!config_exists) {
+        configure_options <- TRUE
+      } else {
+        configure_options <- private$prompt_yes_no("Configure advanced fetch options?", default = FALSE)
+      }
       
       if (configure_options) {
         private$setup_fetch_options()
@@ -148,6 +154,12 @@ ConfigManager <- R6::R6Class(
     
     setup_api_credentials = function(config_exists) {
       private$print_section("API Credentials")
+
+      # Base URL
+      current_url <- self$config$api$base_url
+      cat("\n💡 EvoNEST API base URL (eg., https://evonest.my-university.com)\n")
+      base_url <- private$prompt_input("Enter API base URL", default = current_url, required = TRUE)
+      self$config$api$base_url <<- base_url
 
       # API Key
       current_key <- self$config$api$api_key
