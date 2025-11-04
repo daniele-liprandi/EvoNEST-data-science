@@ -363,37 +363,24 @@ class OutlierAnalyzer:
         return results
     
     def print_analysis_report(self, results: Dict):
-        """Print a detailed hierarchical analysis report"""
+        """Print a summary of the analysis (detailed group output removed for cleaner display)"""
         
-        for group_key, group_data in results.items():
-            family = group_data['family']
-            name = group_data['name']
-            subsampletype = group_data['subsampletype']
-            sample_count = group_data['sample_count']
-            
-            print(f"\n{'='*80}")
-            print(f"GROUP: {family} > {name} > {subsampletype}")
-            print(f"Samples: {sample_count}")
-            print(f"{'='*80}")
-            
-            # Count outliers across all traits for this group
-            traits_with_1sigma = 0
-            traits_with_2sigma = 0
-            traits_with_3sigma = 0
-            total_traits = len(group_data['traits'])
-            
-            for trait, analysis in group_data['traits'].items():
-                if len(analysis['outliers_1sigma']) > 0:
-                    traits_with_1sigma += 1
-                if len(analysis['outliers_2sigma']) > 0:
-                    traits_with_2sigma += 1
-                if len(analysis['outliers_3sigma']) > 0:
-                    traits_with_3sigma += 1
-            
-            print(f"\nOutlier Summary:")
-            print(f"  Traits with 1σ outliers: {traits_with_1sigma}/{total_traits}")
-            print(f"  Traits with 2σ outliers: {traits_with_2sigma}/{total_traits}")
-            print(f"  Traits with 3σ outliers: {traits_with_3sigma}/{total_traits}")
+        # Just count statistics without verbose output
+        total_groups = len(results)
+        groups_with_1sigma = sum(1 for group_data in results.values() 
+                                 if any(len(trait['outliers_1sigma']) > 0 for trait in group_data['traits'].values()))
+        groups_with_2sigma = sum(1 for group_data in results.values() 
+                                 if any(len(trait['outliers_2sigma']) > 0 for trait in group_data['traits'].values()))
+        groups_with_3sigma = sum(1 for group_data in results.values() 
+                                 if any(len(trait['outliers_3sigma']) > 0 for trait in group_data['traits'].values()))
+        
+        print(f"\n{'='*80}")
+        print("ANALYSIS COMPLETE")
+        print(f"{'='*80}")
+        print(f"Analyzed {total_groups} groups (Family > Species > Subsample Type)")
+        print(f"Groups with 1σ outliers: {groups_with_1sigma}/{total_groups}")
+        print(f"Groups with 2σ outliers: {groups_with_2sigma}/{total_groups}")
+        print(f"Groups with 3σ outliers: {groups_with_3sigma}/{total_groups}")
     
     def save_outlier_report(self, results: Dict):
         """Save hierarchical outlier analysis to JSON file"""
