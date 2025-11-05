@@ -79,6 +79,54 @@ function Uninstall-R {
     Write-Host ""
 }
 
+# Find RStudio installation
+function Find-RStudio {
+    $rstudioPaths = @(
+        "C:\Program Files\RStudio\rstudio.exe",
+        "C:\Program Files\RStudio\bin\rstudio.exe",
+        "C:\Program Files (x86)\RStudio\rstudio.exe",
+        "C:\Program Files (x86)\RStudio\bin\rstudio.exe",
+        "$env:LOCALAPPDATA\Programs\RStudio\rstudio.exe"
+    )
+
+    foreach ($path in $rstudioPaths) {
+        if (Test-Path $path) {
+            return $path
+        }
+    }
+
+    # Check if rstudio is in PATH
+    if (Get-Command rstudio -ErrorAction SilentlyContinue) {
+        return "rstudio"
+    }
+
+    return $null
+}
+
+# Open R Markdown file in RStudio
+function Open-RStudio {
+    $notebookPath = "src\R\Notebook.Rmd"
+    
+    if (-not (Test-Path $notebookPath)) {
+        Write-Host "❌ R Notebook not found at $notebookPath" -ForegroundColor Red
+        return $false
+    }
+    
+    $rstudioPath = Find-RStudio
+    if (-not $rstudioPath) {
+        Write-Host "❌ RStudio not found" -ForegroundColor Red
+        return $false
+    }
+    
+    Write-Host "📖 Opening R Markdown notebook in RStudio..." -ForegroundColor Yellow
+    
+    $fullPath = Join-Path $PWD $notebookPath
+    Start-Process $rstudioPath -ArgumentList $fullPath
+    
+    Write-Host "✅ RStudio launched with Notebook.Rmd" -ForegroundColor Green
+    return $true
+}
+
 # Main uninstall flow
 function Invoke-Uninstall {
     Write-Host "========================================================" -ForegroundColor Blue
@@ -246,6 +294,17 @@ if ($bashPath) {
                 Write-Host "R is already installed" -ForegroundColor Green
             }
 
+            # Check if RStudio is installed
+            $rstudioPath = Find-RStudio
+            $rstudioAvailable = $null -ne $rstudioPath
+
+            if ($rstudioAvailable) {
+                Write-Host "✅ RStudio is installed" -ForegroundColor Green
+            } else {
+                Write-Host "⚠️  RStudio not found" -ForegroundColor Yellow
+                Write-Host "   Install RStudio from: https://posit.co/download/rstudio-desktop/" -ForegroundColor Yellow
+            }
+
             Write-Host ""
             Write-Host "Required R packages:" -ForegroundColor Yellow
             Write-Host "  - httr"
@@ -258,16 +317,44 @@ if ($bashPath) {
             Write-Host "Please install these packages by running in R:" -ForegroundColor Cyan
             Write-Host "  install.packages(c('httr', 'jsonlite', 'dplyr', 'ggplot2', 'tidyr', 'knitr'))" -ForegroundColor Blue
             Write-Host ""
-            Write-Host "After installing packages, you can run:" -ForegroundColor Cyan
+            Write-Host "You can now:" -ForegroundColor Cyan
             Write-Host "  Rscript src/R/data_fetch.R  - Fetch data from EvoNEST" -ForegroundColor Blue
+            if ($rstudioAvailable) {
+                Write-Host "  Open src/R/Notebook.Rmd in RStudio - Interactive R Markdown workflow" -ForegroundColor Blue
+            }
             Write-Host ""
 
-            $launch = Read-Host "Launch R console now? (y/n)"
-            if ($launch -eq "y" -or $launch -eq "Y") {
+            if ($rstudioAvailable) {
+                Write-Host "What would you like to do?" -ForegroundColor Cyan
+                Write-Host "  1. Open R Markdown notebook in RStudio (Recommended)" -ForegroundColor Green
+                Write-Host "  2. Launch R console" -ForegroundColor Green
+                Write-Host "  n. Nothing, I'll do it later" -ForegroundColor Green
                 Write-Host ""
-                Write-Host "Starting R console..." -ForegroundColor Cyan
-                Write-Host "Run: install.packages(c('httr', 'jsonlite', 'dplyr', 'ggplot2', 'tidyr', 'knitr'))" -ForegroundColor Yellow
-                R
+
+                $launchChoice = Read-Host "Enter your choice (1, 2, or n)"
+                
+                switch ($launchChoice) {
+                    "1" {
+                        Open-RStudio
+                    }
+                    "2" {
+                        Write-Host ""
+                        Write-Host "Starting R console..." -ForegroundColor Cyan
+                        Write-Host "Run: install.packages(c('httr', 'jsonlite', 'dplyr', 'ggplot2', 'tidyr', 'knitr'))" -ForegroundColor Yellow
+                        R
+                    }
+                    default {
+                        Write-Host "👍 You can open src/R/Notebook.Rmd in RStudio later" -ForegroundColor Yellow
+                    }
+                }
+            } else {
+                $launch = Read-Host "Launch R console now? (y/n)"
+                if ($launch -eq "y" -or $launch -eq "Y") {
+                    Write-Host ""
+                    Write-Host "Starting R console..." -ForegroundColor Cyan
+                    Write-Host "Run: install.packages(c('httr', 'jsonlite', 'dplyr', 'ggplot2', 'tidyr', 'knitr'))" -ForegroundColor Yellow
+                    R
+                }
             }
         }
         "u" {

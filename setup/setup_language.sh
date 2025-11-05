@@ -252,6 +252,106 @@ find_r() {
     fi
 }
 
+# Find RStudio executable
+find_rstudio() {
+    if [[ "$OS" == "Windows" ]]; then
+        # Check common RStudio installation paths
+        local base_paths=("/mnt/c" "/c")
+        local rstudio_paths=(
+            "Program Files/RStudio/rstudio.exe"
+            "Program Files/RStudio/bin/rstudio.exe"
+            "Program Files (x86)/RStudio/rstudio.exe"
+            "Program Files (x86)/RStudio/bin/rstudio.exe"
+        )
+        
+        for base in "${base_paths[@]}"; do
+            for path in "${rstudio_paths[@]}"; do
+                if [ -f "$base/$path" ]; then
+                    echo "$base/$path"
+                    return 0
+                fi
+            done
+        done
+        
+        # Check if rstudio is in PATH
+        if command_exists rstudio.exe; then
+            echo "rstudio.exe"
+            return 0
+        fi
+        
+        return 1
+    elif [[ "$OS" == "Mac" ]]; then
+        # Check for RStudio.app on Mac
+        if [ -d "/Applications/RStudio.app" ]; then
+            echo "/Applications/RStudio.app"
+            return 0
+        fi
+        return 1
+    else
+        # Linux - check PATH
+        if command_exists rstudio; then
+            echo "rstudio"
+            return 0
+        fi
+        return 1
+    fi
+}
+
+# Check if RStudio is installed
+check_rstudio() {
+    local rstudio_cmd=$(find_rstudio)
+    if [ $? -eq 0 ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Open R Markdown file in RStudio
+open_rstudio() {
+    local notebook_path="src/R/Notebook.Rmd"
+    
+    if [ ! -f "$notebook_path" ]; then
+        echo -e "${RED}❌ R Notebook not found at $notebook_path${NC}"
+        return 1
+    fi
+    
+    local rstudio_cmd=$(find_rstudio)
+    if [ -z "$rstudio_cmd" ]; then
+        echo -e "${RED}❌ RStudio not found${NC}"
+        return 1
+    fi
+    
+    echo -e "${YELLOW}📖 Opening R Markdown notebook in RStudio...${NC}"
+    
+    if [[ "$OS" == "Windows" ]]; then
+        # Convert path to Windows format for Git Bash/WSL
+        local win_path=$(pwd)
+        if [[ "$win_path" == /mnt/* ]]; then
+            # WSL path
+            win_path=$(echo "$win_path" | sed 's|/mnt/\([a-z]\)/|\1:/|')
+        elif [[ "$win_path" == /[a-z]/* ]]; then
+            # Git Bash path
+            win_path=$(echo "$win_path" | sed 's|^/\([a-z]\)/|\1:/|')
+        fi
+        win_path="$win_path\\$notebook_path"
+        win_path=$(echo "$win_path" | sed 's|/|\\|g')
+        
+        # Launch RStudio with the file
+        "$rstudio_cmd" "$win_path" &
+        echo -e "${GREEN}✅ RStudio launched with Notebook.Rmd${NC}"
+    elif [[ "$OS" == "Mac" ]]; then
+        open -a "$rstudio_cmd" "$notebook_path"
+        echo -e "${GREEN}✅ RStudio launched with Notebook.Rmd${NC}"
+    else
+        # Linux
+        "$rstudio_cmd" "$notebook_path" &
+        echo -e "${GREEN}✅ RStudio launched with Notebook.Rmd${NC}"
+    fi
+    
+    return 0
+}
+
 # Check if R is installed
 check_r() {
     local r_cmd=$(find_r)
@@ -331,6 +431,16 @@ setup_r() {
         echo -e "${GREEN}✅ R is already installed${NC}"
     fi
 
+    # Check if RStudio is installed
+    local rstudio_available=false
+    if check_rstudio; then
+        echo -e "${GREEN}✅ RStudio is installed${NC}"
+        rstudio_available=true
+    else
+        echo -e "${YELLOW}⚠️  RStudio not found${NC}"
+        echo -e "${YELLOW}   Install RStudio from: https://posit.co/download/rstudio-desktop/${NC}"
+    fi
+
     # Display R package installation instructions
     echo -e "\n${YELLOW}📦 Required R packages:${NC}"
     echo -e "   • httr"
@@ -362,18 +472,45 @@ setup_r() {
 
     echo -e "${GREEN}✅ R environment ready${NC}"
     echo -e "\n${BLUE}═══════════════════════════════════════════════════════${NC}"
-    echo -e "${GREEN}🚀 After installing packages, you can:${NC}"
-    echo -e "   ${BLUE}Rscript src/R/data_fetch.R${NC}  - Fetch data from EvoNEST"
-    echo -e "   ${BLUE}R${NC}                              - Launch R console"
+    echo -e "${GREEN}🚀 You can now:${NC}"
+    echo -e "   ${BLUE}Rscript src/R/data_fetch.R${NC}     - Fetch data from EvoNEST"
+    echo -e "   ${BLUE}R${NC}                                 - Launch R console"
+    if [ "$rstudio_available" = true ]; then
+        echo -e "   ${BLUE}Open src/R/Notebook.Rmd in RStudio${NC} - Interactive R Markdown workflow"
+    fi
     echo -e "${BLUE}═══════════════════════════════════════════════════════${NC}\n"
 
-    # Ask if user wants to launch R
-    read -p "Launch R console now? (y/n): " launch
-    if [[ "$launch" == "y" || "$launch" == "Y" ]]; then
-        echo -e "${BLUE}Starting R console...${NC}"
-        echo -e "${YELLOW}Run: install.packages(c('httr', 'jsonlite', 'dplyr', 'ggplot2', 'tidyr', 'knitr'))${NC}"
-        echo -e "${YELLOW}Then: source('src/R/data_fetch.R')${NC}\n"
-        R
+    # Ask if user wants to launch RStudio or R
+    if [ "$rstudio_available" = true ]; then
+        echo -e "${BLUE}What would you like to do?${NC}"
+        echo -e "   ${GREEN}1${NC}. Open R Markdown notebook in RStudio (Recommended)"
+        echo -e "   ${GREEN}2${NC}. Launch R console"
+        echo -e "   ${GREEN}n${NC}. Nothing, I'll do it later"
+        
+        read -p $'\n'"Enter your choice (1, 2, or n): " launch_choice
+        
+        case "$launch_choice" in
+            1)
+                open_rstudio
+                ;;
+            2)
+                echo -e "${BLUE}Starting R console...${NC}"
+                echo -e "${YELLOW}Run: install.packages(c('httr', 'jsonlite', 'dplyr', 'ggplot2', 'tidyr', 'knitr'))${NC}"
+                echo -e "${YELLOW}Then: source('src/R/data_fetch.R')${NC}\n"
+                R
+                ;;
+            *)
+                echo -e "${YELLOW}👍 You can open src/R/Notebook.Rmd in RStudio later${NC}"
+                ;;
+        esac
+    else
+        read -p "Launch R console now? (y/n): " launch
+        if [[ "$launch" == "y" || "$launch" == "Y" ]]; then
+            echo -e "${BLUE}Starting R console...${NC}"
+            echo -e "${YELLOW}Run: install.packages(c('httr', 'jsonlite', 'dplyr', 'ggplot2', 'tidyr', 'knitr'))${NC}"
+            echo -e "${YELLOW}Then: source('src/R/data_fetch.R')${NC}\n"
+            R
+        fi
     fi
 }
 
