@@ -322,7 +322,9 @@ EvoNESTClient <- R6::R6Class(
         if (is.null(result)) return(NULL)
         
         samples <- result$data
-        cat("✅ Successfully retrieved", length(samples$samples), "samples\n\n")
+        # Get the actual count - samples$samples is a data frame, use nrow()
+        sample_count <- if (is.data.frame(samples$samples)) nrow(samples$samples) else length(samples$samples)
+        cat("✅ Successfully retrieved", sample_count, "samples\n\n")
         return(samples)
       }, error = function(e) {
         cat("❌ Request error:", e$message, "\n")
@@ -345,7 +347,9 @@ EvoNESTClient <- R6::R6Class(
         if (is.null(result)) return(NULL)
         
         traits <- result$data
-        cat("✅ Successfully retrieved", length(traits$traits), "traits\n\n")
+        # Get the actual count - traits$traits is a data frame, use nrow()
+        trait_count <- if (is.data.frame(traits$traits)) nrow(traits$traits) else length(traits$traits)
+        cat("✅ Successfully retrieved", trait_count, "traits\n\n")
         return(traits)
       }, error = function(e) {
         cat("❌ Request error:", e$message, "\n")

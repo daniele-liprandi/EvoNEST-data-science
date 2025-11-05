@@ -319,7 +319,7 @@ class EvoNESTClient:
                 return None
             
             samples = response.json()
-            print(f"✅ Successfully retrieved {len(samples)} samples\n")
+            print(f"✅ Successfully retrieved {len(samples['samples'])} samples\n")
             return samples
         
         except requests.exceptions.RequestException as e:
