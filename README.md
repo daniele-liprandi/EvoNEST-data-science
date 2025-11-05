@@ -25,7 +25,17 @@ This collection of computational tools help downloading and processing samples, 
 For an interactive setup experience, simply **double-click** the setup file for your operating system:
 
 #### Windows
-Double-click **`setup.bat`** or **`setup.ps1`** in the main directory.
+
+**If you downloaded this as a ZIP file from GitHub:**
+1. Right-click **`setup.bat`** in the main directory
+2. Select **"Run as administrator"** (or just double-click it)
+3. If Windows Defender SmartScreen appears, click "More info" → "Run anyway"
+
+**Alternative method (if double-clicking doesn't work):**
+```powershell
+# Open PowerShell in the project directory and run:
+powershell.exe -ExecutionPolicy Bypass -File .\setup.ps1
+```
 
 The script will:
 - Automatically detect if Git Bash is available and use it, or
@@ -33,6 +43,8 @@ The script will:
 - Install pixi (for Python) or check R installation
 - Guide you through dependency installation
 - Optionally launch Jupyter Lab or R console
+
+> **Note**: The `-ExecutionPolicy Bypass` flag is safe here and only applies to this single script execution. It's needed because scripts downloaded from the internet are not digitally signed.
 
 #### Linux/macOS
 Double-click **`setup.sh`** in the main directory (if your system supports it), or run from terminal:
@@ -46,6 +58,8 @@ The script will:
 - Install pixi (for Python) or check R installation
 - Guide you through dependency installation
 - Optionally launch Jupyter Lab or R console
+
+> **Troubleshooting**: If you encounter any issues during setup (especially on Windows), see [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for solutions.
 
 ### Manual Setup Instructions
 

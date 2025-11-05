@@ -15,10 +15,11 @@ if %ERRORLEVEL% EQU 0 (
     echo.
     
     REM Pass /uninstall parameter if provided
+    REM Using -ExecutionPolicy Bypass to allow running unsigned scripts (e.g., from GitHub zip downloads)
     if "%1"=="/uninstall" (
-        powershell -ExecutionPolicy Bypass -File "%~dp0setup.ps1" -Uninstall
+        powershell.exe -ExecutionPolicy Bypass -NoProfile -File "%~dp0setup.ps1" -Uninstall
     ) else (
-        powershell -ExecutionPolicy Bypass -File "%~dp0setup.ps1"
+        powershell.exe -ExecutionPolicy Bypass -NoProfile -File "%~dp0setup.ps1"
     )
 ) else (
     echo ERROR: PowerShell not found!
