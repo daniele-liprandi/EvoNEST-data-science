@@ -21,7 +21,7 @@ This R Markdown notebook provides a step-by-step interface for inexperienced res
 1.  **Fetch data** from the EvoNEST API
 2.  **Process mechanical data** and fit polynomial models to stress-strain curves
 3.  **Build analysis tables** from downloaded and processed data
-4.  **Analyze outliers** using hierarchical sigma-based detection
+4.  **Analyse outliers** using hierarchical sigma-based detection
 
 **Instructions**: Simply run each code chunk in order by clicking the green "play" button (▶) or pressing `Ctrl+Shift+Enter`. The scripts will guide you through configuration when needed.
 
@@ -57,7 +57,13 @@ source("process_mechanical_data.R")
 
 Run the chunk below to load downloaded and processed data into tibbles for analysis.
 
-This will create three tables: - **samples_df**: Sample metadata (animals, silk samples, taxonomy, location) - **traits_df**: Trait measurements (diameter, mechanical properties, morphology) - **experiments_df**: Processed experiment results with polynomial fits
+This will create three tables:
+
+-   **samples_df**: Sample metadata (animals, silk samples, taxonomy, location)
+
+-   **traits_df**: Trait measurements (diameter, mechanical properties, morphology)
+
+-   **experiments_df**: Processed experiment results with polynomial fits
 
 The script will display summary statistics for each table.
 
@@ -136,7 +142,7 @@ head(experiments_df)
 
 ------------------------------------------------------------------------
 
-# Section 4: Analyze Outliers
+# Section 4: Analyse Outliers
 
 Run the chunk below to perform hierarchical outlier analysis on the processed experimental data.
 
@@ -144,18 +150,18 @@ The analysis uses sigma-based detection (1σ, 2σ, 3σ) grouped by Family \> Spe
 
 Configuration: - **Outlier trait threshold**: Percentage of traits that must be outliers to flag an experiment - **Sigma level**: Standard deviations threshold for outlier detection - Results saved to `processed_data/outlier_analysis.json`, `outlier_experiments.csv`, and `outlier_analysis.log`
 
-```{r analyze-outliers, eval=FALSE}
+```{r analyse-outliers, eval=FALSE}
 # Source and run the outlier analysis script
 source("analyse_outliers.R")
 ```
 
 ------------------------------------------------------------------------
 
-# Next Steps: Custom Analysis
+# Section 5: Templates for custom analysis
 
 Now that you have the three tibbles loaded (`samples_df`, `traits_df`, `experiments_df`), you can perform custom analysis and create visualizations using the tidyverse and ggplot2.
 
-**Examples**: - Explore relationships between traits and mechanical properties - Create scatter plots comparing different measurements - Filter data by family or species - Analyze trends across different sample types
+**Examples**: - Explore relationships between traits and mechanical properties - Create scatter plots comparing different measurements - Filter data by family or species - Analyse trends across different sample types
 
 Use the chunks below to write your own analysis code!
 
