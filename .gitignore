@@ -30,3 +30,8 @@ config/*.json
 # AI configuration files
 ai_configs/*.yaml
 CLAUDE.md
+
+# pixi environments, as they are saved in the setup
+.pixi/*
+pixi.lock
+pixi.toml
