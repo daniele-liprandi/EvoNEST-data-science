@@ -147,6 +147,8 @@ jupyterlab = ">=4.0.0"
 matplotlib = ">=3.7.0"
 seaborn = ">=0.12.0"
 tqdm = ">=4.0"
+scikit-learn = ">=1.2.0"
+scipy = ">=1.10.0"
 
 [tasks]
 fetch = "python src/python/data_fetch.py"
